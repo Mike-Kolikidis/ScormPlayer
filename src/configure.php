@@ -34,4 +34,9 @@ class Configuration
      * The custom log file to use if $logCustom is true
      */
     public static $customLogFile = '/tmp/scorm.log';
+
+    public static $GOOGLE_CLOUD_STORAGE_BUCKET = 'scorm-214819.appspot.com';
+    public static $GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE = '/home/antonis/Projects/learnworlds/ScormPlayer/packages-management@scorm-214819.iam.gserviceaccount.com.json';
+    public static $GOOGLE_APPLICATION_CREDENTIALS = '/home/antonis/Projects/learnworlds/ScormPlayer/Scorm-9d50eec8f95f.json';
+
 }

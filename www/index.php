@@ -5,10 +5,11 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use ahat\ScormPlayer\Proxy;
+use ahat\ScormPlayer\Configuration;
 
-putenv( 'GOOGLE_CLOUD_STORAGE_BUCKET=scorm-214819.appspot.com' );
-putenv( 'GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE=/home/antonis/Projects/learnworlds/ScormPlayer/packages-management@scorm-214819.iam.gserviceaccount.com.json' );
-putenv( 'GOOGLE_APPLICATION_CREDENTIALS=/home/antonis/Projects/learnworlds/ScormPlayer/Scorm-9d50eec8f95f.json' );
+putenv( 'GOOGLE_CLOUD_STORAGE_BUCKET='. Configuration::$GOOGLE_CLOUD_STORAGE_BUCKET );
+putenv( 'GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE='. Configuration::$GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE );
+putenv( 'GOOGLE_APPLICATION_CREDENTIALS=' . Configuration::$GOOGLE_APPLICATION_CREDENTIALS );
 
 $proxy = new Proxy( Request::createFromGlobals() );
 

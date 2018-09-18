@@ -1,0 +1,31 @@
+{
+    "name": "ahat/scormdemo",
+    "description": "Applicaton that demonstrated scrom player",
+    "type": "app",
+    "authors": [
+        {
+            "name": "Antonis Hatzikonstantinou",
+            "email": "ahatzikonstantinou@gmail.com"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^5.0",
+        "kreait/firebase-php": "^4.17.0"
+    },  
+    "require-dev": {
+        "phpunit/phpunit": "^7.3"
+    },
+    "autoload": {  
+        "psr-4": {  
+            "ahat\\ScormDemo\\": "src"  
+        }  
+    },  
+    "autoload-dev": {  
+        "psr-4": {  
+            "ahat\\ScormDemo\\Tests\\": "tests/"  
+        }  
+    },
+    "config": {
+    	"optimize-autoloader": true
+    }
+}

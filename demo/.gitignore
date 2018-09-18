@@ -1,0 +1,4 @@
+composer.phar
+/vendor/
+.phpunit.result.cache
+Scorm-9d50eec8f95f.json
