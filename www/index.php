@@ -15,10 +15,12 @@ $proxy = new Proxy( Request::createFromGlobals() );
 $proxy->run();
 
 // NOTE: the following lines will not run if the proxy decides that this must be a redirect
-
 foreach ( $proxy->getHeaders() as $header ) {
     header( $header );
 }
+
+// Add allow cross-origin although this does not help with CROSS error for json files. Therefore these files are served directly
+header( 'Access-Control-Allow-Origin: https://storage.googleapis.com' );
 
 http_response_code( $proxy->getStatus() );
 

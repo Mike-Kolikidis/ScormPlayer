@@ -2,16 +2,17 @@
 
 namespace ahat\ScormPlayer;
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Google\Cloud\Storage\StorageClient;
-use Firebase\JWT\JWT;
 use Firebase\Auth\Token\Exception\InvalidToken;
-use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
 use DateTime;
 
 use ahat\ScormPlayer\Verifier;
+use ahat\ScormPlayer\Configuration;
+use ahat\ScormPlayer\LoggerProvider;
 
 //debugging only
 use Lcobucci\JWT\Parser;
@@ -19,22 +20,17 @@ use Lcobucci\JWT\Token;
 
 class Proxy 
 {
-    private static $SERVED_FILES = array( 
-        'html' => 'Content-type: text/html; charset=UTF-8', 
-        'htm' => 'Content-type: text/html; charset=UTF-8', 
-        'css' => 'Content-type: text/css; charset=UTF-8', 
-        'json' => 'Content-type: text/javascript; charset=UTF-8', 
-        'js' => 'Content-type: text/javascript; charset=UTF-8'
-    ); //NOTE: html must come before htm or else the served object's name will change to .htm
     private $request;
     private $content;
     private $headers;
     private $status;
+    private $logger;
 
     public function __construct( Request $request )
     {
         $this->request = $request;
         $this->headers = array();
+        $this->logger = LoggerProvider::getLogger();
     }
 
     public function run()
@@ -45,45 +41,36 @@ class Proxy
             return;
         }
 
-
         $redirect = true;
-        foreach( Proxy::$SERVED_FILES as $ext => $header ) {
-            // file_put_contents("php://stdout", "\nChecking ext $ext: " );
-            error_log( "Checking $objectName for ext $ext: ", 4 );
-            error_log( "Checking $objectName for ext $ext: ", 3, '/tmp/scorm.log' );
+        foreach( Configuration::$SERVED_FILES as $ext => $header ) {
+            $this->logger->log( "Checking $objectName for ext $ext:" );
             if( strpos( $objectName, '.'.$ext ) !== false ) { // anything other than !== false will not work
                 $objectName = substr( $objectName, 0, strpos( $objectName, '.'.$ext  ) ). '.' . $ext;
-                // file_put_contents("php://stdout", "\nobjectName => $objectName\n" );
-                error_log( "Ext $ext found. Objectname => $objectName\n", 4 );
-                error_log( "Ext $ext found. Objectname => $objectName\n", 3, '/tmp/scorm.log' );
-                // If this is one of the types of files we are serving, cancel the redirect
+                $this->logger->log( "Ext $ext found. Objectname => $objectName" );
+                
                 $this->headers[] = $header;
-                error_log( "Added header $header\n", 3, '/tmp/scorm.log' );
-                $redirect = false;
+                $this->logger->log( "Added header $header" );
+                $redirect = false; // If this is one of the types of files we are serving, cancel the redirect
                 
                 break;
             }
         }        
 
-        // file_put_contents("php://stdout", "\nObjectName: $objectName\n");
-
         if( is_null( $objectName ) ) {
             $this->status = 400;
+            $this->logger->log( "No object specified" );
             return;
         }
 
         $verifiedToken = $this->checkJWT();
 
-        // file_put_contents("php://stdout", "verifiedToken: $verifiedToken\n");
-
-        if( is_null( $verifiedToken ) ) {            
+        if( is_null( $verifiedToken ) ) {
+            $this->logger->log( "JWT not verified" );
             return;
         }
 
         $folderId = '';
         $scormId = '';
-        // if( !$this->request->hasPreviousSession() ) {
-        // if( !isset( $_SESSION[ 'jwt' ] ) ) {
         if( !is_null( $this->request->get( 'jwt' ) ) ) {
             $parts = explode( '/', $objectName, 3 );
             $folderId = $parts[0];
@@ -91,21 +78,14 @@ class Proxy
             $filename = $parts[2];
 
             if( !$this->checkObjectPermissions( $verifiedToken, $folderId, $scormId ) ) {
+                $this->logger->log( "$folderId/$scormId not allowed by JWT" );
                 return;
             }
 
+            //start new session
             $_SESSION[ 'folderId' ] = $folderId;
             $_SESSION[ 'scormId' ] = $scormId;
             $_SESSION[ 'jwt' ] = $this->request->get( 'jwt' );
-            //start new session
-            // $session = new Session();
-            // $session->start();
-            // $session->set( 'folderId', $folderId );
-            // $session->set( 'scormId', $scormId );
-            // $session->set( 'jwt', $this->request->get( 'jwt' ) );
-            // $session->save();
-    
-            // $this->request->setSession( $session );
         }
         else {
             //since scorm packages include only relative paths, subsequent requests will need to have
@@ -114,24 +94,17 @@ class Proxy
             $scormId = $verifiedToken->getClaim( 'claims' )->scormId;
 
             $objectName = $folderId . '/' . $scormId . $objectName;
-
-            error_log( "Will look for object $objectName\n", 4 );
-            error_log( "Will look for object $objectName\n", 3, '/tmp/scorm.log' );
+            $this->logger->log( "Will look for object $objectName" );
         }
         
         $storage = new StorageClient();
         $bucket = $storage->bucket( getenv( 'GOOGLE_CLOUD_STORAGE_BUCKET' ) );
 
-        // foreach ($bucket->objects() as $object) {
-        //     file_put_contents("php://stdout", "\n\tObject: $object->name()\n" );
-        // }
-
         $object = $bucket->object( $objectName );
 
         if( !$object->exists() ) {
             $this->status = 404;
-            error_log( "Object $objectName does not exist\n", 4 );
-            error_log( "Object $objectName does not exist\n", 3, '/tmp/scorm.log' );
+            $this->logger->log( "Object $objectName does not exist" );
             return;
         }
 
@@ -139,18 +112,13 @@ class Proxy
         {
             $date = new DateTime( 'tomorrow' );
             $redirectUrl = $object->signedUrl( $date->getTimestamp(), ['method' => 'GET' ] );
-            error_log( "Redirecting for url: $redirectUrl\n", 4 );
-            error_log( "Redirecting for url: $redirectUrl\n", 3, '/tmp/scorm.log' );
+            $this->logger->log( "Redirecting for url: $redirectUrl" );
             $this->redirect( $redirectUrl );
         }
 
 
-        error_log( "Directly serving object :$objectName\n", 4 );
-        error_log( "Directly serving object :$objectName\n", 3, '/tmp/scorm.log' );
+        $this->logger->log( "Directly serving object: $objectName" );
         $this->content = $object->downloadAsString();
-
-        $dbg = var_export( $this->headers, true );
-        // error_log("Headers: $dbg\n", 3, '/tmp/scorm.log' );
         $this->status = 200;
     }
 
@@ -158,31 +126,27 @@ class Proxy
     {        
         $jwt = null;
 
-        // if( !$this->request->hasPreviousSession() ) {
-        // if( !isset( $_SESSION[ 'jwt' ] ) ) {
         if( !is_null( $this->request->get( 'jwt' ) ) ) {
             $jwt = $this->request->get( 'jwt' );
-            error_log( "From request jwt: $jwt\n", 4 );
-            error_log( "From request jwt: $jwt\n", 3, '/tmp/scorm.log' );
+            $this->logger->log( "From request jwt: $jwt" );
         }
         else {
-            // $jwt = $this->request->getSession()->get( 'jwt' );
             $jwt = $_SESSION[ 'jwt' ];
-            error_log( "From session jwt: $jwt\n", 4 );
-            error_log( "From session jwt: $jwt\n", 3, '/tmp/scorm.log' );
+            $this->logger->log( "From session jwt: $jwt" );
         }
 
         //If there is no jwt => ERROR
         if( is_null( $jwt ) ) {
             $this->status = 401;
             $this->headers[] = 'WWW-Authenticate: Bearer';
+            $this->logger->log( "No JWT found in qeuerystring or session" );
             return null;
         }
 
         
-        $token = (new Parser())->parse($jwt);
+        // $token = (new Parser())->parse($jwt);
         // $dbg = var_export($token, true);
-        // file_put_contents("php://stdout", "\nVerifying jwt: \n\t$jwt\ntoken: $dbg\n");
+        // $this->logger->log( "Verifying token: $dbg\n");
 
         $serviceAccount = ServiceAccount::fromJsonFile( getenv( 'GOOGLE_APPLICATION_CREDENTIALS' ) );
         $publicCertificate = $this->getPublicCertificate( 
@@ -190,15 +154,11 @@ class Proxy
             getenv( 'GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE' )
         );
 
-        // file_put_contents("php://stdout", "\nPublic Certificate: \n\t$publicCertificate\n");
         try {
-            // return $firebase->getAuth()->verifyIdToken( $jwt );
             $verifier = new Verifier( $serviceAccount->getClientEmail(), $publicCertificate );
             return $verifier->verifyIdToken( $jwt );
         } catch ( InvalidToken $e ) {
-            // file_put_contents("php://stdout", "\nInvalid token: ".$e->getMessage()."\n");
-            error_log( "Invalid jwt ".$e->getMessage()."\n", 4 );
-            error_log( "Invalid jwt ".$e->getMessage()."\n", 3, '/tmp/scorm.log' );
+            $this->logger->log( "Invalid jwt ". $e->getMessage() );
             $this->status = 403;
             $this->headers[] = 'WWW-Authenticate: Bearer';
             return null;
@@ -208,15 +168,12 @@ class Proxy
     private function checkObjectPermissions( $verifiedToken, $folderId, $scormId )
     {
         $claims = $verifiedToken->getClaim( 'claims' );
-        $dbg = var_export( $claims, true );
-        // file_put_contents("php://stdout", "\nClaims: $dbg\n");
 
         if( $folderId == $claims->folderId && $scormId == $claims->scormId ) {
             return true;
         }
 
-        error_log( "Invalid $folderId/$scormId against claims " . $claims->folderId . '/' . $claims->scormId ."\n", 4 );
-        error_log( "Invalid $folderId/$scormId against claims " . $claims->folderId . '/' . $claims->scormId ."\n", 3, '/tmp/scorm.log' );
+        $this->logger->log( "Invalid $folderId/$scormId against claims " . $claims->folderId . '/' . $claims->scormId );
         $this->status = 403;
         $this->headers[] = 'WWW-Authenticate: Bearer';
         return false;

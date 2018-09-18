@@ -12,6 +12,12 @@ use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token;
 
+/**
+ * This class verifies a JWT token and has been copied from Firebase. The original class was inappropriate because 
+ * a) it was validating the issuer against a static google http address
+ * b) it was trying to verify the signature of JWT with a key retrieved from a keystore although the FirebaseFactory
+ * did not instantiate it with one.
+ */
 class Verifier 
 {
     /**
@@ -31,13 +37,7 @@ class Verifier
 
     public function __construct(string $account, string $key, Signer $signer = null)
     {
-        // $dbg = var_export($key, true);
-        // file_put_contents("php://stdout", "\nVerifier key: $dbg\n" );
-
         $this->key = $key;
-
-        // $dbg = var_export($signer, true);
-        // file_put_contents("php://stdout", "\nVerifier signer: $dbg\n" );
 
         $this->account = $account;
 
@@ -84,8 +84,6 @@ class Verifier
 
     private function verifyIssuer(Token $token)
     {
-        // file_put_contents("php://stdout", "\nVerifier issuer: ". $token->getClaim('iss') .", account: ". $this->account ."\n" );
-
         if (!$token->hasClaim('iss')) {
             throw new InvalidToken($token, 'The claim "iss" is missing.');
         }
