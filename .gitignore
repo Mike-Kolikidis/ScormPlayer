@@ -1,0 +1,6 @@
+composer.phar
+/vendor/
+.phpunit.result.cache
+packages-management@scorm-214819.iam.gserviceaccount.com.json
+Scorm-9d50eec8f95f.json
+scorm-214819-firebase-adminsdk-acyrm-b39c9a5f6b.json

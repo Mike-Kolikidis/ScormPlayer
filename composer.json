@@ -1,0 +1,32 @@
+{
+    "name": "ahat/scormplayer",
+    "description": "A player for scorm zip packages stored in google cloud storage",
+    "type": "app",
+    "authors": [
+        {
+            "name": "Antonis Hatzikonstantinou",
+            "email": "ahatzikonstantinou@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/http-foundation": "dev-master",
+        "firebase/php-jwt": "^5.0",
+        "kreait/firebase-php": "^4.17.0"
+    },  
+    "require-dev": {
+        "phpunit/phpunit": "^7.3"
+    },
+    "autoload": {  
+        "psr-4": {  
+            "ahat\\ScormPlayer\\": "src/"  
+        }  
+    },  
+    "autoload-dev": {  
+        "psr-4": {  
+            "ahat\\ScormPlayer\\Tests\\": "tests/"  
+        }  
+    },
+    "config": {
+    	"optimize-autoloader": true
+    }
+}
