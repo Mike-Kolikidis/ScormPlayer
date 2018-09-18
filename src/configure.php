@@ -35,6 +35,16 @@ class Configuration
      */
     public static $customLogFile = '/tmp/scorm.log';
 
+    /**
+     * The time period expresses as a string, after which JWT expires.
+     * Examples '1 day', '2 weeks', '3 months', '4 years', '1 year + 1 day', '1 day + 12 hours', '3600 seconds'
+     * See http://php.net/manual/en/dateinterval.createfromdatestring.php
+     */
+    public static $JWT_EXPIRATION_PERIOD = "1 day";
+
+    /**
+     * Goggle settings
+     */
     public static $GOOGLE_CLOUD_STORAGE_BUCKET = 'scorm-214819.appspot.com';
     public static $GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE = '/home/antonis/Projects/learnworlds/ScormPlayer/packages-management@scorm-214819.iam.gserviceaccount.com.json';
     public static $GOOGLE_APPLICATION_CREDENTIALS = '/home/antonis/Projects/learnworlds/ScormPlayer/Scorm-9d50eec8f95f.json';

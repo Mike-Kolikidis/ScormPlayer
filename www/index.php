@@ -15,6 +15,15 @@ $proxy = new Proxy( Request::createFromGlobals() );
 
 $proxy->run();
 
+if( $proxy->isRedirect() )
+{
+    ob_start();
+    http_response_code( 302 );
+    header('Location: '.$proxy->getRedirectUrl() );
+    ob_end_flush();
+    die();
+}
+
 // NOTE: the following lines will not run if the proxy decides that this must be a redirect
 foreach ( $proxy->getHeaders() as $header ) {
     header( $header );

@@ -9,6 +9,7 @@ use Google\Cloud\Storage\StorageClient;
 use Firebase\Auth\Token\Exception\InvalidToken;
 use Kreait\Firebase\ServiceAccount;
 use DateTime;
+use DateInterval;
 
 use ahat\ScormPlayer\Verifier;
 use ahat\ScormPlayer\Configuration;
@@ -20,6 +21,8 @@ use Lcobucci\JWT\Token;
 
 class Proxy 
 {
+    private $redirect;
+    private $redirectUrl;
     private $request;
     private $content;
     private $headers;
@@ -28,6 +31,8 @@ class Proxy
 
     public function __construct( Request $request )
     {
+        $this->redirect = true;
+        $this->redirectUrl = '';
         $this->request = $request;
         $this->headers = array();
         $this->logger = LoggerProvider::getLogger();
@@ -41,7 +46,7 @@ class Proxy
             return;
         }
 
-        $redirect = true;
+        $this->redirect = true;
         foreach( Configuration::$SERVED_FILES as $ext => $header ) {
             $this->logger->log( "Checking $objectName for ext $ext:" );
             if( strpos( $objectName, '.'.$ext ) !== false ) { // anything other than !== false will not work
@@ -50,7 +55,7 @@ class Proxy
                 
                 $this->headers[] = $header;
                 $this->logger->log( "Added header $header" );
-                $redirect = false; // If this is one of the types of files we are serving, cancel the redirect
+                $this->redirect = false; // If this is one of the types of files we are serving, cancel the redirect
                 
                 break;
             }
@@ -108,18 +113,19 @@ class Proxy
             return;
         }
 
-        if( $redirect )
-        {
-            $date = new DateTime( 'tomorrow' );
-            $redirectUrl = $object->signedUrl( $date->getTimestamp(), ['method' => 'GET' ] );
-            $this->logger->log( "Redirecting for url: $redirectUrl" );
-            $this->redirect( $redirectUrl );
+        if( $this->redirect )
+        {            
+            $date = new DateTime(); //now
+            $date->add( DateInterval::createFromDateString( Configuration::$JWT_EXPIRATION_PERIOD ) );
+            $this->redirectUrl = $object->signedUrl( $date->getTimestamp(), ['method' => 'GET' ] );
+            $this->logger->log( "Redirecting for url: " . $this->redirectUrl );
         }
-
-
-        $this->logger->log( "Directly serving object: $objectName" );
-        $this->content = $object->downloadAsString();
-        $this->status = 200;
+        else
+        {
+            $this->logger->log( "Directly serving object: $objectName" );
+            $this->content = $object->downloadAsString();
+            $this->status = 200;
+        }
     }
 
     private function checkJWT()
@@ -194,14 +200,6 @@ class Proxy
         return $this->content;
     }
 
-    private function redirect( $url ) 
-    {
-        ob_start();
-        header('Location: '.$url);
-        ob_end_flush();
-        die();
-    }
-
     private function getKeyId( $jsonFile )
     { 
         $string = file_get_contents( $jsonFile );
@@ -214,5 +212,15 @@ class Proxy
         $string = file_get_contents( $jsonFile );
         $data = json_decode($string, true);
         return $data[ $keyId ];
+    }
+
+    public function isRedirect()
+    {
+        return $this->redirect;
+    }
+
+    public function getRedirectUrl()
+    {
+        return $this->redirectUrl;
     }
 }
