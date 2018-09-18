@@ -19,15 +19,22 @@ use Lcobucci\JWT\Token;
 
 class Proxy 
 {
-    private static $SERVED_FILES = array( 'html', 'htm', 'css', 'json', 'js' ); //NOTE: html must come before htm or else the served object's name will change to .htm
+    private static $SERVED_FILES = array( 
+        'html' => 'Content-type: text/html; charset=UTF-8', 
+        'htm' => 'Content-type: text/html; charset=UTF-8', 
+        'css' => 'Content-type: text/css; charset=UTF-8', 
+        'json' => 'Content-type: text/javascript; charset=UTF-8', 
+        'js' => 'Content-type: text/javascript; charset=UTF-8'
+    ); //NOTE: html must come before htm or else the served object's name will change to .htm
     private $request;
     private $content;
-    private $headers = array();
+    private $headers;
     private $status;
 
     public function __construct( Request $request )
     {
         $this->request = $request;
+        $this->headers = array();
     }
 
     public function run()
@@ -40,7 +47,7 @@ class Proxy
 
 
         $redirect = true;
-        foreach( Proxy::$SERVED_FILES as $ext ) {
+        foreach( Proxy::$SERVED_FILES as $ext => $header ) {
             // file_put_contents("php://stdout", "\nChecking ext $ext: " );
             error_log( "Checking $objectName for ext $ext: ", 4 );
             error_log( "Checking $objectName for ext $ext: ", 3, '/tmp/scorm.log' );
@@ -50,6 +57,8 @@ class Proxy
                 error_log( "Ext $ext found. Objectname => $objectName\n", 4 );
                 error_log( "Ext $ext found. Objectname => $objectName\n", 3, '/tmp/scorm.log' );
                 // If this is one of the types of files we are serving, cancel the redirect
+                $this->headers[] = $header;
+                error_log( "Added header $header\n", 3, '/tmp/scorm.log' );
                 $redirect = false;
                 
                 break;
@@ -139,7 +148,9 @@ class Proxy
         error_log( "Directly serving object :$objectName\n", 4 );
         error_log( "Directly serving object :$objectName\n", 3, '/tmp/scorm.log' );
         $this->content = $object->downloadAsString();
-        // file_put_contents("php://stdout", "\nContents of $objectName:\n".$this->content."\n");
+
+        $dbg = var_export( $this->headers, true );
+        // error_log("Headers: $dbg\n", 3, '/tmp/scorm.log' );
         $this->status = 200;
     }
 
