@@ -1,3 +1,14 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+  <title>Untitled 1</title>
+
+</head>
+
+<body>
+
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -7,8 +18,6 @@ use Firebase\Auth\Token\Generator as CustomTokenGenerator;
 use Kreait\Firebase\Value\Uid;
 use Kreait\Firebase\ServiceAccount;
 
-use RecursiveIteratorIterator;
-use RecursiveDirectoryIterator;
 use ahat\ScormDemo\Configuration;
 use ahat\ScormDemo\GCSClass;
 
@@ -60,8 +69,30 @@ foreach( $folders as $folder )
 
         $url = Configuration::$PROXY_ADDRESS . "?url=$folder/$package/$launcher&jwt=$jwt";
         ?>
-        <a href="<?php echo $url; ?>"><?php echo "$folder/$package"?></a>
+        <a href="#" onclick="document.getElementById('scorm').src='<?php echo $url; ?>'"><?php echo "$folder/$package"?></a></br>
+        <?php
+
+        // create an invalid jwt to demonstrate access denied. 'invalid folder', 'invalid package'
+        // must not be the actual names of the current folder and package or else this will be a valid jwt
+        $additionalClaims = [
+            'folderId' => 'invalid folder',
+            'scormId' => 'invalid package'
+        ];
+        $customToken = $tokenGenerator->createCustomToken($uid, $additionalClaims);
+        $jwt = (string) $customToken;
+        $invalidUrl = Configuration::$PROXY_ADDRESS . "?url=$folder/$package/$launcher&jwt=$jwt";
+        ?>
+        <a href="#" onclick="document.getElementById('scorm').src='<?php echo $invalidUrl; ?>'"><?php echo "$folder/$package"?></a> (invalid)
         <?php
     
     }
 }
+
+?>
+
+  <iframe id="scorm" src="about:blank" width="1000" height="450" frameborder="0" scrolling="no"></iframe>
+
+</body>
+
+</html>
+
