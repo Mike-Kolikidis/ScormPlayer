@@ -6,6 +6,7 @@
   <title>Untitled 1</title>
 
 </head>
+<script type="text/javascript" src="SCORMRuntime.js"></script>
 
 <body>
 

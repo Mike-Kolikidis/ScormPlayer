@@ -25,4 +25,11 @@ header( 'Access-Control-Allow-Origin: https://storage.googleapis.com' );
 
 http_response_code( $proxy->getStatus() );
 
+$errorPages = array( 400 => '400.html', 401 => '401.html', 403 => '403.html', 404 => '404.html',  );
+if( array_key_exists( $proxy->getStatus(), $errorPages ) )
+{
+    include( $errorPages[ $proxy->getStatus() ] );
+    die;
+}
+
 echo $proxy->getContent();
