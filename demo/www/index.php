@@ -25,7 +25,7 @@ use ahat\ScormDemo\GCSClass;
 putenv( 'GOOGLE_CLOUD_STORAGE_BUCKET='. Configuration::$GOOGLE_CLOUD_STORAGE_BUCKET );
 putenv( 'GOOGLE_APPLICATION_CREDENTIALS=' . Configuration::$GOOGLE_APPLICATION_CREDENTIALS );
 
-$serviceAccount = ServiceAccount::fromJsonFile( Configuration::$GOOGLE_APPLICATION_CREDENTIALS );
+$serviceAccount = ServiceAccount::fromJsonFile( __DIR__ . '/' . Configuration::$GOOGLE_APPLICATION_CREDENTIALS );
 $uid = 'anything here';
 $uid = $uid instanceof Uid ? $uid : new Uid($uid);
 $tokenGenerator = new CustomTokenGenerator(

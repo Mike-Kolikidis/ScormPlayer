@@ -154,10 +154,10 @@ class Proxy
         // $dbg = var_export($token, true);
         // $this->logger->log( "Verifying token: $dbg\n");
 
-        $serviceAccount = ServiceAccount::fromJsonFile( getenv( 'GOOGLE_APPLICATION_CREDENTIALS' ) );
+        $serviceAccount = ServiceAccount::fromJsonFile( __DIR__ . '/' . Configuration::$GOOGLE_APPLICATION_CREDENTIALS );
         $publicCertificate = $this->getPublicCertificate( 
-            $this->getKeyId( getenv( 'GOOGLE_APPLICATION_CREDENTIALS' ) ),   
-            getenv( 'GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE' )
+            $this->getKeyId( __DIR__ . '/' . Configuration::$GOOGLE_APPLICATION_CREDENTIALS ),
+            __DIR__ . '/' . Configuration::$GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE
         );
 
         try {
@@ -216,11 +216,13 @@ class Proxy
 
     public function isRedirect()
     {
+        $this->logger->log( "I am redirecting" );
         return $this->redirect;
     }
 
     public function getRedirectUrl()
     {
+        $this->logger->log( "The redirectUrl is " . $this->redirectUrl );
         return $this->redirectUrl;
     }
 }

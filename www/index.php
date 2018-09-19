@@ -15,6 +15,15 @@ $proxy = new Proxy( Request::createFromGlobals() );
 
 $proxy->run();
 
+http_response_code( $proxy->getStatus() );
+
+$errorPages = array( 400 => '400.html', 401 => '401.html', 403 => '403.html', 404 => '404.html',  );
+if( array_key_exists( $proxy->getStatus(), $errorPages ) )
+{
+    include( $errorPages[ $proxy->getStatus() ] );
+    die;
+}
+
 if( $proxy->isRedirect() )
 {
     ob_start();
@@ -31,14 +40,5 @@ foreach ( $proxy->getHeaders() as $header ) {
 
 // Add allow cross-origin although this does not help with CROSS error for json files. Therefore these files are served directly
 header( 'Access-Control-Allow-Origin: https://storage.googleapis.com' );
-
-http_response_code( $proxy->getStatus() );
-
-$errorPages = array( 400 => '400.html', 401 => '401.html', 403 => '403.html', 404 => '404.html',  );
-if( array_key_exists( $proxy->getStatus(), $errorPages ) )
-{
-    include( $errorPages[ $proxy->getStatus() ] );
-    die;
-}
 
 echo $proxy->getContent();
