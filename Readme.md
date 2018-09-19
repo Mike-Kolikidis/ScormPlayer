@@ -162,7 +162,7 @@ The demo application's url will be `http://localhost:8081`.
 
 ## Docker
 
-Docker configuration and auxilliary files are in folder `docker`. The container's image is based of Ubuntu linux.
+Docker configuration and auxilliary files are in folder `docker`. The container's image is based on Ubuntu linux.
 
 `docker-compose.yml` contains settings to run the Proxy and the demo application in a docker container.
 
