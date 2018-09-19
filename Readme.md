@@ -97,7 +97,7 @@ Change the values in `demo/src/configure.php` according to your project's detail
 * GOOGLE_APPLICATION_CREDENTIALS: path to the json file that contains the private key of the service account that has read access to the storage bucket
 * PROXY_ADDRESS: the url of the Proxy
 
-## Usage
+### Usage
 Start a web server to serve the demo application, and navigate to the demo application's url. The demo application will access the specified Google Cloud Storage Bucket and list all folders/packages.
 
 **Note**: the application autodetects the launcher file for each package.
@@ -159,3 +159,25 @@ and in folder `/etc/nginx/sites-enabled` create symbolic links to these files.
 The Proxy's url will be `http://localhost:8080` (use this value in demo/src/configure.php for PROXY_ADDRESS).
 
 The demo application's url will be `http://localhost:8081`.
+
+## Docker
+
+Docker configuration and auxilliary files are in folder `docker`. The container's image is based of Ubuntu linux.
+
+`docker-compose.yml` contains settings to run the Proxy and the demo application in a docker container.
+
+Run
+
+```
+docker-compose build
+```
+to build the container and
+
+```
+docker-compose up
+```
+to start the container.
+
+**Note:** if the docker daemon is running as root add `sudo` at the beggining of the previous commands.
+
+The Proxy's url is http://0.0.0.0:8080 and the demo application's url is http://0.0.0.0:8081.

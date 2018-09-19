@@ -83,7 +83,7 @@ foreach( $folders as $folder )
         $jwt = (string) $customToken;
         $invalidUrl = Configuration::$PROXY_ADDRESS . "?url=$folder/$package/$launcher&jwt=$jwt";
         ?>
-        <a href="#" onclick="document.getElementById('scorm').src='<?php echo $invalidUrl; ?>'"><?php echo "$folder/$package"?></a> (invalid)
+        <a href="#" onclick="document.getElementById('scorm').src='<?php echo $invalidUrl; ?>'"><?php echo "$folder/$package"?></a> (invalid)</br>
         <?php
     
     }
@@ -91,6 +91,7 @@ foreach( $folders as $folder )
 
 ?>
 
+  <hr>
   <iframe id="scorm" src="about:blank" width="1000" height="450" frameborder="0" scrolling="no"></iframe>
 
 </body>
