@@ -2,7 +2,7 @@
 
 This is a proxy that serves scorm packages stored in Google Cloud Storage.
 
-Some files are redirected to their signed url, while others are served directly i.e. the proxy downloads the file as a string and writes the contents in the html response.
+Some of the requests for package files are redirected to their signed url, while others are served directly i.e. the proxy downloads the file as a string and writes the contents in the html response.
 
 Requests served by the proxy must either:
  * navigate to `index.php` and contain querystring parameters:
@@ -61,13 +61,19 @@ to omit development dependencies such as unit tests.
 
 ## Configuration
 Configuration settings for the Proxy are located in src/configure.php
+
 * SERVED_FILES: these are the files (specified by their extension) that are served directly by the Proxy. All other requests are redirected to the corresponding signed url.
 * Logging:
     * log: if true, logging is enabled
     * logCustom: if true, messages will be logged to a custom log file. If false, messages are stored to php's standard error log, e.g. for a unix system running nginx this is `/var/log/nginx/error.log`
     * customLogFile: the file where custom logging is saved. 
     
-        **Note**: in unix systems the custom log file must exist and have the appropriate permissions. For example, for unix, if the web server runs as `www-data` and the custom log file is `/tmp/scorm.log` do ```touch /tmp/scorm.log && chgrp www-data /tmp/scorm.log && chmod g+w /tmp/scorm.log```
+        **Note**: in unix systems the custom log file must exist and have the appropriate permissions. For example, for unix, if the web server runs as `www-data` and the custom log file is `/tmp/scorm.log` do 
+        ```
+        touch /tmp/scorm.log && chgrp www-data /tmp/scorm.log && chmod g+w /tmp/scorm.log
+        ```
+
+        **Important**: Custom logging should be used for debugging purposes only. The custom log file is not rotated and will gradually consume disk space. Either implement rotation using OS mechanisms e.g. crontab for unix, or manually delete the custom log file and disable custom logging when no longer required.
 
 * Google Cloud Storage Settings:
     * GOOGLE_CLOUD_STORAGE_BUCKET: the storage bucket of the project
@@ -79,7 +85,11 @@ Configuration settings for the Proxy are located in src/configure.php
 Folder `demo` contains an application to demonstrate the usage of the proxy.
 
 ### Installation
-After downloading the project from github, ```cd``` in folder `demo` and run ```composer install``` to install all dependencies
+After downloading the project from github, ```cd``` in folder `demo` and run 
+```
+composer install
+``` 
+to install all dependencies
 
 ### Configuration
 Change the values in `demo/src/configure.php` according to your project's details:
@@ -88,16 +98,16 @@ Change the values in `demo/src/configure.php` according to your project's detail
 * PROXY_ADDRESS: the url of the Proxy
 
 ## Usage
-Depending on the web server that you are using to serve the demo application, navigate to the demo application's url. The demo application will access the specified Google Cloud Storage Bucket and list all folders/packages.
+Start a web server to serve the demo application, and navigate to the demo application's url. The demo application will access the specified Google Cloud Storage Bucket and list all folders/packages.
 
-**Note** The application autodetects the launcher file for each package.
+**Note**: the application autodetects the launcher file for each package.
 
 For each package the application displays two links. A valid link with a properly computed valid JWT, and a link with an invalid JWT in order to demonstrate how the Proxy responds to requests with invalid JWTs.
 
 The application's html contains an iframe where the scorm packages are loaded. Clicking on a valid link will load the specified scorm package in the iframe. Clicking on an invalid link will load the error-response of the Proxy in the iframe.
 
 ## NGINX
-Use the following configuration to serve the Proxy and the Demo application. Configuration fles for nginx in unix system are usually located in `/etc/nginx/sites-available`.
+Use the following configuration to serve the Proxy and the Demo application. Configuration files for nginx in a unix system are usually located in `/etc/nginx/sites-available` and `/etc/nginx/sites-enabled`.
 
 In folder `sites-available` add files
 #### proxy.conf
