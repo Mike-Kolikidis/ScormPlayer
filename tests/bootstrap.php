@@ -4,4 +4,4 @@
 putenv( 'GOOGLE_CLOUD_STORAGE_PROJECT_ID=819215810916' );
 putenv( 'JWT_PROJECT_ID=scorm-214819' );
 putenv( 'GOOGLE_CLOUD_STORAGE_BUCKET=scorm-214819.appspot.com' );
-putenv( 'GOOGLE_APPLICATION_CREDENTIALS=/home/antonis/Projects/learnworlds/ScormUpload/Scorm-9d50eec8f95f.json' );
+putenv( 'GOOGLE_APPLICATION_CREDENTIALS=../credentials/private-key.json' );

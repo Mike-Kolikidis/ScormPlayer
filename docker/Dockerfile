@@ -14,7 +14,7 @@ Run apt-get update
 # noninteractive is necessary in order to stop dialogs from freezing the build of the container e.g. tzdata: set timezone
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get install -y nginx php php-mbstring php-cli php-fpm php-intl php-xdebug php-curl
+RUN apt-get install -y nginx php php-mbstring php-cli php-fpm php-intl php-xdebug php-curl php-xml
 RUN echo "\ndaemon off;" >> /etc/nginx/nginx.conf
 RUN sed -i -e "s/;\?daemonize\s*=\s*yes/daemonize = no/g" /etc/php/*/fpm/php-fpm.conf
 
