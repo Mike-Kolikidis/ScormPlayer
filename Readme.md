@@ -90,11 +90,11 @@ Configuration settings for the Proxy are located in src/configure.php
     * GOOGLE_APPLICATION_CREDENTIALS: path to the json file that contains the private key of the service account that has read access to the storage bucket
     * GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE: path to the json file that contains the public certificate of the service account that has read access to the storage bucket.
 
-    **Important:** In order to allow easy deployment with docker containers, GOOGLE_APPLICATION_CREDENTIALS was set to `../credentials/private-key.json`. **Do not change this path**. Instead, either save the private key json file in folder `credentials` and name it `private-key.json` or copy it in folder `credentials` and create a symbolic link to it with the name `private-key.json`. For example in a linux sysytem:
+    **Important:** In order to allow easy deployment with docker containers, GOOGLE_APPLICATION_CREDENTIALS was set to `../credentials/private-key.json`. **Do not change this path**. Instead, either save the private key json file in folder `credentials` and name it `private-key.json` or copy it in folder `credentials` and create a symbolic link to it with the name `private-key.json`. For example in a unix sysytem:
     ```
     ln -s /path/to/credentials/filename-of-private-key.json private-key.json
     ```
-    Similarly, GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE has been set to '../credentials/public-certificate.json'. Save the public certificate json file in folder `credentials` and either rename it to `public-certificate.json` or create a symbolic link to it with the name `public-certificate.json`.
+    Similarly, GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE has been set to `../credentials/public-certificate.json`. Save the public certificate json file in folder `credentials` and either rename it to `public-certificate.json` or create a symbolic link to it with the name `public-certificate.json`.
 
 ## Demo
 
@@ -183,7 +183,7 @@ The demo application's url will be `http://localhost:8081`.
 
 Docker configuration and auxilliary files are in folder `docker`. The container's image is based on Ubuntu linux.
 
-`docker-compose.yml` contains settings to run the Proxy and the demo application in a docker container.
+File `docker-compose.yml` contains settings to run the Proxy and the demo application in a docker container.
 
 Run
 
