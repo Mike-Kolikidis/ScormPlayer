@@ -46,7 +46,7 @@ class Configuration
      * Goggle settings
      */
     public static $GOOGLE_CLOUD_STORAGE_BUCKET = 'scorm-214819.appspot.com';
-    public static $GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE = '../packages-management@scorm-214819.iam.gserviceaccount.com.json';
-    public static $GOOGLE_APPLICATION_CREDENTIALS = '../Scorm-9d50eec8f95f.json';
+    public static $GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE = '../credentials/public-certificate.json';
+    public static $GOOGLE_APPLICATION_CREDENTIALS = '../credentials/private-key.json';
 
 }

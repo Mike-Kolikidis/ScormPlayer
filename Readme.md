@@ -45,6 +45,8 @@ The Proxy will evaluate each request and will do one of the following:
 
 ## Installation
 
+### Libraries
+
 Download to a directory of your preference and run
 ```
 composer install
@@ -58,6 +60,14 @@ composer install --no-dev
 ```
 
 to omit development dependencies such as unit tests.
+
+### Credentials
+Download and store in folder `credentials`:
+
+ * the json file containing the private key of the service account that has read access to the Google Cloud Storage project's bucket
+ * the json file containing the public certificate of the service account that has read access to the Google Cloud Storage project's bucket. 
+ 
+    **Note:** In order to obtain the file visit https://www.googleapis.com/service_accounts/v1/metadata/x509/[SA-NAME]@[PROJECT-ID].iam.gserviceaccount.com replacing [SA-NAME] and [PROJECT-ID] with your projects details. It is ok if the file contains the public certificates of other service accounts too (if the project has many service accounts they all download in one file).
 
 ## Configuration
 Configuration settings for the Proxy are located in src/configure.php
@@ -78,7 +88,13 @@ Configuration settings for the Proxy are located in src/configure.php
 * Google Cloud Storage Settings:
     * GOOGLE_CLOUD_STORAGE_BUCKET: the storage bucket of the project
     * GOOGLE_APPLICATION_CREDENTIALS: path to the json file that contains the private key of the service account that has read access to the storage bucket
-    * GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE: path to the json file that contains the public certificate of the service account that has read access to the storage bucket. In order to obtain the file visit https://www.googleapis.com/service_accounts/v1/metadata/x509/[SA-NAME]@[PROJECT-ID].iam.gserviceaccount.com replacing [SA-NAME] and [PROJECT-ID] with your projects details.
+    * GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE: path to the json file that contains the public certificate of the service account that has read access to the storage bucket.
+
+    **Important:** In order to allow easy deployment with docker containers, GOOGLE_APPLICATION_CREDENTIALS was set to `../credentials/private-key.json`. **Do not change this path**. Instead, either save the private key json file in folder `credentials` and name it `private-key.json` or copy it in folder `credentials` and create a symbolic link to it with the name `private-key.json`. For example in a linux sysytem:
+    ```
+    ln -s /path/to/credentials/filename-of-private-key.json private-key.json
+    ```
+    Similarly, GOOGLE_APPLICATION_CREDENTIALS_PUBLIC_CERTIFICATE has been set to '../credentials/public-certificate.json'. Save the public certificate json file in folder `credentials` and either rename it to `public-certificate.json` or create a symbolic link to it with the name `public-certificate.json`.
 
 ## Demo
 
@@ -95,6 +111,9 @@ to install all dependencies
 Change the values in `demo/src/configure.php` according to your project's details:
 * GOOGLE_CLOUD_STORAGE_BUCKET: the bucket to access in Google Cloud Storage
 * GOOGLE_APPLICATION_CREDENTIALS: path to the json file that contains the private key of the service account that has read access to the storage bucket
+  
+  **Important:** This is the same credentials file used for the Proxy. **Do not change this path**. See the relevant note in the previous configuration section for Google Cloud Storage Settings.
+
 * PROXY_ADDRESS: the url of the Proxy
 
 ### Usage
