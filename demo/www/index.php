@@ -89,6 +89,8 @@ foreach( $folders as $folder )
     }
 }
 
+header("Access-Control-Allow-Origin: *");
+
 ?>
 
   <hr>

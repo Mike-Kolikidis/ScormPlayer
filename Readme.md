@@ -200,3 +200,34 @@ to start the container.
 **Note:** if the docker daemon is running as root add `sudo` at the beggining of the previous commands.
 
 The Proxy's url is http://0.0.0.0:8080 and the demo application's url is http://0.0.0.0:8081.
+
+## Cross Origin Resource Sharing (CORS)
+
+It is important to properly configure the CORS settings of the Google Cloud Storage Bucket used in order to avoid CORS related errors when loading assets from Google Cloud Storage. For an explanation about CORS see https://cloud.google.com/storage/docs/cross-origin.
+
+See https://cloud.google.com/storage/docs/configuring-cors and  https://cloud.google.com/storage/docs/gsutil/commands/cors
+for detailed instructions on how to setup CORS. The supplied cors-json-file.json contains 
+
+```json
+[
+    {
+      "origin": ["http://localhost:8080"],
+      "responseHeader": ["Content-Type", "x-requested-with"],
+      "method": ["GET", "HEAD"],
+      "maxAgeSeconds": 3600
+    }
+]
+```
+
+which are the settings used for testing with a docker container, hence the `http://localhost:8080` origin. Modify according to your environment and run
+```
+gsutil cors set cors-json-file.json  gs://[BUCKET]
+```
+to update the settings, replacing [BUCKET] with the name of you GoogleCloud Storage Bucket.
+
+To see the current cors settings run
+```
+gsutil cors get gs://[BUCKET]
+```
+
+You need to have a local installation of gsutil. For instructions see https://cloud.google.com/storage/docs/gsutil_install or https://cloud.google.com/sdk/docs/
