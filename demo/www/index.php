@@ -7,11 +7,12 @@
 
 </head>
 <script type="text/javascript" src="SCORMRuntime.js"></script>
-
+<script>
+    document.domain='<?php echo parse_url( $_SERVER['HTTP_HOST'], PHP_URL_HOST);?>';
+</script>
 <body>
 
 <?php
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // use Google\Cloud\Storage\StorageClient;

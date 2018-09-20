@@ -231,3 +231,8 @@ gsutil cors get gs://[BUCKET]
 ```
 
 You need to have a local installation of gsutil. For instructions see https://cloud.google.com/storage/docs/gsutil_install or https://cloud.google.com/sdk/docs/
+
+**Important** The Proxy and the demo (or any other application embedding the Proxy in an iframe) **must** run in the same domain. For example, the nginx configuration presented above, serves both the Proxy and the demo under http://0.0.0.0 (port numbers do not matter). This is important to allow the scorm packages to access the LMS scripts in the demo application. If the domains were different the browser would return a
+```
+SecurityError: Blocked a frame with origin "http://www.<domain>.com" from accessing a cross-origin frame.
+```
